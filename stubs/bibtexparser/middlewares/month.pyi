@@ -1,0 +1,29 @@
+import abc
+
+from bibtexparser.library import Library as Library
+from bibtexparser.model import Block as Block
+from bibtexparser.model import Entry as Entry
+from bibtexparser.model import Field as Field
+
+from .middleware import BlockMiddleware as BlockMiddleware
+
+class _MonthInterpolator(BlockMiddleware, abc.ABC, metaclass=abc.ABCMeta):
+    def __init__(self, allow_inplace_modification: bool = True) -> None: ...
+    def transform_entry(self, entry: Entry, library: Library) -> Block: ...
+    @abc.abstractmethod
+    def resolve_month_field_val(self, month_field: Field) -> tuple[str | int, str]: ...
+
+class MonthLongStringMiddleware(_MonthInterpolator):
+    @classmethod
+    def metadata_key(cls) -> str: ...
+    def resolve_month_field_val(self, month_field: Field) -> tuple[str | int, str]: ...
+
+class MonthAbbreviationMiddleware(_MonthInterpolator):
+    @classmethod
+    def metadata_key(cls) -> str: ...
+    def resolve_month_field_val(self, month_field: Field) -> tuple[str | int, str]: ...
+
+class MonthIntMiddleware(_MonthInterpolator):
+    @classmethod
+    def metadata_key(cls) -> str: ...
+    def resolve_month_field_val(self, month_field: Field) -> tuple[str | int, str]: ...

@@ -1,0 +1,5 @@
+__pycache__/
+/var/
+/build/
+*.egg-info
+*,pyc
