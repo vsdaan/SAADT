@@ -7,6 +7,7 @@ from saadt import model
 from saadt.scraper import Scraper
 from saadt.scraper.acsac import AcsacScraper
 from saadt.scraper.ches import ChesScraper
+from saadt.scraper.ndss import NDSSScraper
 from saadt.scraper.usenix import UsenixPreScraper, UsenixScraper
 from saadt.scraper.woot import WootScraper
 from saadt.util import get_proxy
@@ -21,6 +22,8 @@ def get_scraper(
             return AcsacScraper(edition, max_threads=max_threads, proxies=proxies)
         case "ches":
             return ChesScraper(edition, max_workers=max_workers, max_threads=max_threads, proxies=proxies)
+        case "ndss":
+            return NDSSScraper(edition, max_workers=max_workers, max_threads=max_threads, proxies=proxies)
         case "usenix":
             return UsenixScraper(edition, max_workers=max_workers, max_threads=max_threads, proxies=proxies)
         case "usenix_pre":
