@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 
 class RetryableSession(requests.Session):
-    fallback_user_agent = "Mozilla/5.0 (X11; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0"
+    fallback_user_agent = "Mozilla/5.0 (X11; Linux x86_64; rv:141.0) Gecko/20100101 Firefox/141.0"
 
     def send(self, request: requests.PreparedRequest, **kwargs):  # type: ignore[no-untyped-def]
         resp = super().send(request, **kwargs)
