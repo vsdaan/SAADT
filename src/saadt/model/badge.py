@@ -103,6 +103,9 @@ class UsenixArtifactBadge(ArtifactBadge):
 
 class WOOTArtifactBadge(ArtifactBadge):
     EVALUATED = "Evaluated"
+    FUNCTIONAL = "Functional"
+    REPRODUCED = "Reproduced"
+    AVAILABLE = "Available"
     ORO = "ORO"
     """
     Open Research Objects (ORO):
@@ -116,3 +119,8 @@ class WOOTArtifactBadge(ArtifactBadge):
     this badge indicates that all relevant artifacts used in the research (including data and code) were reviewed
     and conformed to the expectations set by the paper.
     """
+
+class NDSSArtifactBadge(ArtifactBadge):
+    FUNCTIONAL = "Functional"
+    REPRODUCED = "Reproduced"
+    AVAILABLE = "Available"

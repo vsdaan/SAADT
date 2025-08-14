@@ -13,7 +13,7 @@ from saadt.scraper import ScraperWorker, ThreadedScraper
 from saadt.util import mputils
 from saadt.util.mputils import WorkerParams
 
-NDSS_BASE_URL = "https://www.ndss-symposium.org/ndss{year}/accepted-papers/"
+NDSS_BASE_URL = "https://www.ndss-symposium.org/ndss20{year}/accepted-papers/"
 
 log = logging.getLogger(__name__)
 
@@ -27,15 +27,15 @@ class NDSSScraperWorker(ScraperWorker[tuple[PaperTitle, str]]):
         super().__init__(edition, **kwargs)
 
     def _process_node(self, node: tuple[PaperTitle, str]) -> Paper:
-        title, link = node
-        self.logger.debug('Processing paper="%s", url="%s"', title, link)
-        pdf_link = self._parse_paper_page(link)
+        _, link = node
+        self.logger.debug('Processing paper url="%s"', link)
+        title, pdf_link = self._parse_paper_page(link)
 
         paper = Paper(title, link, pdf_link, None, [])
         return paper
 
-    def _parse_paper_page(self, link: str) -> str:
-        """Parse the individual paper page to find the PDF link."""
+    def _parse_paper_page(self, link: str) -> tuple[PaperTitle, str]:
+        """Parse the individual paper page to find the title and PDF link."""
         try:
             r = self.session.get(link)
             r.raise_for_status()
@@ -43,6 +43,18 @@ class NDSSScraperWorker(ScraperWorker[tuple[PaperTitle, str]]):
             raise RuntimeError(f'Error fetching paper page="{link}"') from exc
 
         soup = BeautifulSoup(r.content, "lxml")
+        
+        # Find the title from h1 with class "entry-title"
+        title_element = soup.find("h1", class_="entry-title")
+        if not title_element:
+            raise Exception(f'Failed to find title for paper page="{link}"')
+        
+        title_text = title_element.get_text(strip=True)
+        if not title_text:
+            raise Exception(f'Empty title for paper page="{link}"')
+        
+        # Clean up the title
+        title = PaperTitle(unidecode(title_text.strip()))
         
         # Find PDF link that contains 'wp-content/uploads' and ends with '.pdf'
         pdf_links = soup.find_all("a", href=re.compile(r"wp-content/uploads.*\.pdf$"))
@@ -57,7 +69,7 @@ class NDSSScraperWorker(ScraperWorker[tuple[PaperTitle, str]]):
         if pdf_link and not pdf_link.startswith("http"):
             pdf_link = urljoin(link, pdf_link)
         
-        return pdf_link
+        return title, pdf_link
 
 
 class NDSSScraper(ThreadedScraper[tuple[PaperTitle, str]]):
@@ -97,26 +109,13 @@ class NDSSScraper(ThreadedScraper[tuple[PaperTitle, str]]):
             if not href:
                 continue
             
-            # Find the title in div.h3
-            title_div = paper_div.find("h3")
-                      
-            if not title_div:
-                log.warning("Could not find title for paper with link: %s", href)
-                continue
-            
-            title_text = title_div.get_text(strip=True)
-            if not title_text:
-                log.warning("Empty title for paper with link: %s", href)
-                continue
-            
-            # Clean up the title
-            title = unidecode(title_text.strip())
-            
             # Make sure it's an absolute URL
             if not href.startswith("http"):
                 href = urljoin(NDSS_BASE_URL.format(year=self.edition), href)
             
-            result.append((PaperTitle(title), str(href)))
+            # Use a placeholder title since we'll get the real title from the paper page
+            placeholder_title = PaperTitle(f"Paper_{len(result) + 1}")
+            result.append((placeholder_title, str(href)))
 
         log.debug("Found %d papers", len(result))
         return result

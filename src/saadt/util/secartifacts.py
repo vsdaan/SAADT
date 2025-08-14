@@ -111,6 +111,8 @@ class SecartifactsScraper:
                         return badge.UsenixArtifactBadge(bs)
                 case "woot":
                     return badge.WOOTArtifactBadge(bs)
+                case "ndss":
+                    return badge.NDSSArtifactBadge(bs)
         except ValueError:
             return None
 
