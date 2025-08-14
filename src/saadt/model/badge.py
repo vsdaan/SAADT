@@ -121,6 +121,6 @@ class WOOTArtifactBadge(ArtifactBadge):
     """
 
 class NDSSArtifactBadge(ArtifactBadge):
-    FUNCTIONAL = "Functional"
-    REPRODUCED = "Reproduced"
-    AVAILABLE = "Available"
+    FUNCTIONAL = "functional"
+    REPRODUCED = "reproduced"
+    AVAILABLE = "available"
